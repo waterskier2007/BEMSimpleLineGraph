@@ -153,6 +153,11 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     
+    #if TARGET_INTERFACE_BUILDER
+        [self drawEntireGraph];
+        return;
+    #endif
+    
     // Let the delegate know that the graph began layout updates
     if ([self.delegate respondsToSelector:@selector(lineGraphDidBeginLoading:)])
         [self.delegate lineGraphDidBeginLoading:self];

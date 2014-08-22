@@ -26,7 +26,7 @@
 @protocol BEMSimpleLineGraphDataSource;
 
 /// Simple line graph / chart UIView subclass for iOS apps. Creates beautiful line graphs (without huge memory impacts) using QuartzCore.
-@interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDelegate>
+IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDelegate>
 
 
 
@@ -132,7 +132,7 @@
 
 
 /// The graph's label font used on various axis. This property may be privately overwritten, do not expect full functionality from this property.
-@property (strong, nonatomic) UIFont *labelFont;
+@property (strong, nonatomic) IBInspectable UIFont *labelFont;
 
 
 /// Time of the animation when the graph appears in seconds. Default value is 1.5.
@@ -153,7 +153,7 @@
 
 
 /// The way the graph is drawn, with or without bezier curved lines. Default value is NO.
-@property (nonatomic) BOOL enableBezierCurve;
+@property (nonatomic) IBInspectable BOOL enableBezierCurve;
 
 
 /** Show Y-Axis label on the side. Default value is NO.
@@ -182,39 +182,39 @@
 
 
 /// Color of the bottom part of the graph (between the line and the X-axis).
-@property (strong, nonatomic) UIColor *colorBottom;
+@property (strong, nonatomic) IBInspectable UIColor *colorBottom;
 
 
 /// Alpha of the bottom part of the graph (between the line and the X-axis).
-@property (nonatomic) CGFloat alphaBottom;
+@property (nonatomic) IBInspectable CGFloat alphaBottom;
 
 
 /// Color of the top part of the graph (between the line and the top of the view the graph is drawn in).
-@property (strong, nonatomic) UIColor *colorTop;
+@property (strong, nonatomic) IBInspectable UIColor *colorTop;
 
 
 /// Alpha of the top part of the graph (between the line and the top of the view the graph is drawn in).
-@property (nonatomic) CGFloat alphaTop;
+@property (nonatomic) IBInspectable CGFloat alphaTop;
 
 
 /// Color of the line of the graph.
-@property (strong, nonatomic) UIColor *colorLine;
+@property (strong, nonatomic) IBInspectable UIColor *colorLine;
 
 
 /// Alpha of the line of the graph.
-@property (nonatomic) CGFloat alphaLine;
+@property (nonatomic) IBInspectable CGFloat alphaLine;
 
 
 /// Width of the line of the graph. Default value is 1.0.
-@property (nonatomic) CGFloat widthLine;
+@property (nonatomic) IBInspectable CGFloat widthLine;
 
 
 /// The size of the circles that represent each point. Default is 10.0.
-@property (nonatomic) CGFloat sizePoint;
+@property (nonatomic) IBInspectable CGFloat sizePoint;
 
 
 /// The color of the circles that represent each point. Default is white.
-@property (strong, nonatomic) UIColor *colorPoint;
+@property (strong, nonatomic) IBInspectable UIColor *colorPoint;
 
 
 /// The color of the line that appears when the user touches the graph.
@@ -230,11 +230,11 @@
 
 
 /// Color of the label's text displayed on the X-Axis. Defaut value is blackColor.
-@property (strong, nonatomic) UIColor *colorXaxisLabel;
+@property (strong, nonatomic) IBInspectable UIColor *colorXaxisLabel;
 
 
 /// Color of the label's text displayed on the Y-Axis. Defaut value is blackColor.
-@property (strong, nonatomic) UIColor *colorYaxisLabel;
+@property (strong, nonatomic) IBInspectable UIColor *colorYaxisLabel;
 
 
 /// Color of the pop up label's background displayed when the user touches the graph.

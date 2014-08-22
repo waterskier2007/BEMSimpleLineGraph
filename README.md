@@ -43,17 +43,17 @@ Learn more about the **BEMSimpleLineGraph** project requirements, licensing, and
 ### Requirements
 *See the full article on the wiki [here](https://github.com/Boris-Em/BEMSimpleLineGraph/wiki/Requirements)*.
 
-- Requires iOS 6 or later. The sample project is optimized for iOS 7.
+- Requires iOS 8.0 beta, seed 5 or later. The sample project is optimized for iOS 8.
 - Requires Automatic Reference Counting (ARC).
 - Optimized for ARM64 Architecture
 
-Requires Xcode 5 for use in any iOS Project. Requires a minimum of iOS 6.0 as the deployment target. 
+Requires Xcode 6.0 beta, seed 6 for use in any iOS or OS X Project. Requires a minimum of iOS 6.0 as the deployment target.
 
 | Current Build Target 	| Earliest Supported Build Target 	| Earliest Compatible Build Target 	|
 |:--------------------:	|:-------------------------------:	|:--------------------------------:	|
-|       iOS 7.1        	|            iOS 7.0             	|             iOS 6.0              	|
-|     Xcode 5.1.1      	|          Xcode 5.1            	|           Xcode 5.0            	|
-|      LLVM 5.0        	|             LLVM 5.0            	|             LLVM 5.0             	|
+|       iOS 8.0 Seed 5        	|            iOS 7.0             	|             iOS 6.0              	|
+|     Xcode 6.0 Seed 6      	|          Xcode 6.0 Seed 2            	|           Xcode 6.0 Seed 1            	|
+|      LLVM 6.0        	|             LLVM 6.0            	|             LLVM 5.0             	|
 
 > REQUIREMENTS NOTE  
 *Supported* means that the library has been tested with this version. *Compatible* means that the library should work on this OS version (i.e. it doesn't rely on any unavailable SDK features) but is no longer being tested for compatibility and may require tweaking or bug fixes to run correctly.
@@ -102,6 +102,7 @@ Setting up **BEMSimpleLineGraph** in your project is simple. If you're familiar 
      2 - Change the class type of the UIView to `BEMSimpleLineGraphView`  
      3 - Link the view to your code using an `IBOutlet`. You can set the property to `weak` and `nonatomic`.  
      4 - Select the `BEMSimpleLineGraphView` in your interface. Connect the **dataSource** property and then the **delegate** property to your ViewController.  
+     5 - Select the `BEMSimpleLineGraphView` and open the Attributes Inspector. Most of the line graph's customizable properties can easily be set from the Attributes Inspector. The Sample App demonstrates this capability.
 
      **Code Initialization**  
      Just add the following code to your implementation (usually the `viewDidLoad` method).
@@ -114,7 +115,7 @@ Setting up **BEMSimpleLineGraph** in your project is simple. If you're familiar 
  4. Implement the two required data source methods: `numberOfPointsInLineGraph:` and `lineGraph:valueForPointAtIndex:`. See documentation below for more information
 
 ## Documentation
-The essential parts of **BEMSimpleLineGraph** are documented below. For full documentation, see the [wiki](https://github.com/Boris-Em/BEMSimpleLineGraph/wiki). If you're using Xcode 5 with BEMSimpleLineGraph, documentation is available directly within Xcode (just Option-Click any method for Quick Help).
+The essential parts of **BEMSimpleLineGraph** are documented below. For full documentation, see the [wiki](https://github.com/Boris-Em/BEMSimpleLineGraph/wiki). Documentation is also available directly within Xcode (just Option-Click any method for Quick Help).
 
 ### Required Delegate / Data Source Methods
 

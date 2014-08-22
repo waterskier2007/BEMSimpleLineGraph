@@ -44,16 +44,18 @@
      myGraph.dataSource = self;
      [self.view addSubview:myGraph]; */
     
+    // The following properties are commented out because they are set in Interface Builder
+    // self.myGraph.colorTop = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
+    // self.myGraph.colorBottom = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
+    // self.myGraph.colorLine = [UIColor whiteColor];
+    // self.myGraph.colorXaxisLabel = [UIColor whiteColor];
+    // self.myGraph.colorYaxisLabel = [UIColor whiteColor];
+    // self.myGraph.widthLine = 3.0;
+    // self.myGraph.enableBezierCurve = YES;
+    
     // Customization of the graph
-    self.myGraph.colorTop = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
-    self.myGraph.colorBottom = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
-    self.myGraph.colorLine = [UIColor whiteColor];
-    self.myGraph.colorXaxisLabel = [UIColor whiteColor];
-    self.myGraph.colorYaxisLabel = [UIColor whiteColor];
-    self.myGraph.widthLine = 3.0;
     self.myGraph.enableTouchReport = YES;
     self.myGraph.enablePopUpReport = YES;
-    self.myGraph.enableBezierCurve = YES;
     self.myGraph.enableYAxisLabel = YES;
     self.myGraph.autoScaleYAxis = YES;
     self.myGraph.alwaysDisplayDots = NO;
