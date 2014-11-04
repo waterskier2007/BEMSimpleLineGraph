@@ -81,7 +81,7 @@
     self.labelValues.textColor = color;
     self.navigationController.navigationBar.tintColor = color;
     
-    self.myGraph.animationGraphStyle = BEMLineAnimationDraw;
+    self.myGraph.animationGraphStyle = (BEMLineAnimation) self.animationStyle.selectedSegmentIndex;
 
     [self.myGraph reloadGraph];
 }
