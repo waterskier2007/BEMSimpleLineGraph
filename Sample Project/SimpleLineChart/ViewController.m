@@ -11,7 +11,7 @@
 
 
 @interface ViewController () {
-    int previousStepperValue;
+    double previousStepperValue;
     int totalNumber;
 }
 
@@ -115,14 +115,13 @@
         // Add line
         [self.arrayOfValues addObject:@([self getRandomInteger])];
         [self.arrayOfDates addObject:[NSString stringWithFormat:@"%i", (int) [[self.arrayOfDates lastObject] integerValue] + 1]];
-        [self.myGraph reloadGraph];
     } else if (self.graphObjectIncrement.value < previousStepperValue) {
         // Remove line
         [self.arrayOfValues removeObjectAtIndex:0];
         [self.arrayOfDates removeObjectAtIndex:0];
-        [self.myGraph reloadGraph];
     }
-    
+    [self.myGraph reloadGraph];
+
     previousStepperValue = self.graphObjectIncrement.value;
 }
 
