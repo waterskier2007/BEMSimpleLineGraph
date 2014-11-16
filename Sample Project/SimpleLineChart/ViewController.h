@@ -14,8 +14,8 @@
 
 @property (weak, nonatomic) IBOutlet BEMSimpleLineGraphView *myGraph;
 
-@property (strong, nonatomic) NSMutableArray *ArrayOfValues;
-@property (strong, nonatomic) NSMutableArray *ArrayOfDates;
+@property (strong, nonatomic) NSMutableArray *arrayOfValues;
+@property (strong, nonatomic) NSMutableArray *arrayOfDates;
 
 @property (strong, nonatomic) IBOutlet UILabel *labelValues;
 @property (strong, nonatomic) IBOutlet UILabel *labelDates;
@@ -23,6 +23,7 @@
 - (IBAction)refresh:(id)sender;
 - (IBAction)addOrRemoveLineFromGraph:(id)sender;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *graphColorChoice;
+@property (strong, nonatomic) IBOutlet UISegmentedControl *curveChoice;
 @property (weak, nonatomic) IBOutlet UIStepper *graphObjectIncrement;
 
 - (IBAction)displayStatistics:(id)sender;

@@ -157,19 +157,27 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 
 /** Show Y-Axis label on the side. Default value is NO.
- @see  autoScaleYAxis - When set YES, Y-Axis will show minimum, maximum and middle label only.
  @todo Could enhance further by specifying the position of Y-Axis, i.e. Left or Right of the view.  Also auto detection on label overlapping. */
 @property (nonatomic) BOOL enableYAxisLabel;
+
+
+/** Show X-Axis label at the bottom of the graph. Default value is YES.
+ @see \p labelOnXAxisForIndex
+ */
+@property (nonatomic) BOOL enableXAxisLabel;
 
 /** When set to YES, the points on the Y-axis will be set to all fit in the graph view. When set to NO, the points on the Y-axis will be set with their absolute value (which means that certain points might not be visible because they are outside of the view). Default value is YES. */
 @property (nonatomic) BOOL autoScaleYAxis;
 
 
-/// Draws a translucent vertical lines along the graph for each X-Axis label, when set to YES. Default value is NO.
-@property (nonatomic) BOOL enableReferenceAxisLines;
+/// Draws a translucent vertical lines along the graph for each X-Axis when set to YES. Default value is NO.
+@property (nonatomic) BOOL enableReferenceXAxisLines;
+
+/// Draws a translucent horizontal lines along the graph for each Y-Axis label, when set to YES. Default value is NO.
+@property (nonatomic) BOOL enableReferenceYAxisLines;
 
 /** Draws a translucent frame between the graph and any enabled axis, when set to YES. Default value is NO.
- @see enableReferenceAxisLines must be set to YES for this property to have any affect.  */
+ @see enableReferenceXAxisLines or enableReferenceYAxisLines must be set to YES for this property to have any affect.  */
 @property (nonatomic) BOOL enableReferenceAxisFrame;
 
 
@@ -189,6 +197,10 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 @property (nonatomic) IBInspectable CGFloat alphaBottom;
 
 
+/// Fill gradient of the bottom part of the graph (between the line and the X-axis). When set, it will draw a gradient over top of the fill provided by the \p colorBottom and \p alphaBottom properties.
+@property (assign, nonatomic) CGGradientRef gradientBottom;
+
+
 /// Color of the top part of the graph (between the line and the top of the view the graph is drawn in).
 @property (strong, nonatomic) IBInspectable UIColor *colorTop;
 
@@ -197,9 +209,17 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 @property (nonatomic) IBInspectable CGFloat alphaTop;
 
 
+/// Fill gradient of the top part of the graph (between the line and the top of the view the graph is drawn in). When set, it will draw a gradient over top of the fill provided by the \p colorTop and \p alphaTop properties.
+@property (assign, nonatomic) CGGradientRef gradientTop;
+
 /// Color of the line of the graph.
 @property (strong, nonatomic) IBInspectable UIColor *colorLine;
 
+/// Fill gradient of the line of the graph, which will be scaled to the length of the graph. Overrides the line color provided by \p colorLine
+@property (assign, nonatomic) CGGradientRef gradientLine;
+
+/// The drawing direction of the line gradient color, which defaults to horizontal
+@property (nonatomic) BEMLineGradientDirection gradientLineDirection;
 
 /// Alpha of the line of the graph.
 @property (nonatomic) IBInspectable CGFloat alphaLine;
@@ -207,6 +227,9 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 /// Width of the line of the graph. Default value is 1.0.
 @property (nonatomic) IBInspectable CGFloat widthLine;
+
+/// Color of the reference lines of the graph. Default is same color as `colorLine`.
+@property (strong, nonatomic) UIColor *colorReferenceLines;
 
 
 /// The size of the circles that represent each point. Default is 10.0.
@@ -231,6 +254,22 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 /// Color of the label's text displayed on the X-Axis. Defaut value is blackColor.
 @property (strong, nonatomic) IBInspectable UIColor *colorXaxisLabel;
+
+
+/// Color of the background of the X-Axis
+@property (strong, nonatomic) UIColor *colorBackgroundXaxis;
+
+
+/// Alpha of the background of the X-Axis
+@property (nonatomic) CGFloat alphaBackgroundXaxis;
+
+
+/// Color of the background of the Y-Axis
+@property (strong, nonatomic) UIColor *colorBackgroundYaxis;
+
+
+/// Alpha of the background of the Y-Axis
+@property (nonatomic) CGFloat alphaBackgroundYaxis;
 
 
 /// Color of the label's text displayed on the Y-Axis. Defaut value is blackColor.
@@ -330,6 +369,21 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
  @return The minimum value of the Y-Axis. */
 - (CGFloat)minValueForLineGraph:(BEMSimpleLineGraphView *)graph;
 
+/** Optional method to control whether a label indicating NO DATA will be shown while number of data is zero
+ @param graph The graph object for the NO DATA label
+ @return The boolean value indicating the availability of the NO DATA label. */
+- (BOOL)noDataLabelEnableForLineGraph:(BEMSimpleLineGraphView *)graph;
+
+/** Optional method to control the text to be displayed on NO DATA label
+ @param graph The graph object for the NO DATA label
+ @return The text to show on the NO DATA label. */
+- (NSString *)noDataLabelTextForLineGraph:(BEMSimpleLineGraphView *)graph;
+
+/** Optional method to set the static padding distance between the graph line and the whole graph
+ @param graph The graph object requesting the padding value.
+ @return The padding value of the graph. */
+- (CGFloat)staticPaddingForLineGraph:(BEMSimpleLineGraphView *)graph;
+
 
 //----- TOUCH EVENTS -----//
 
@@ -361,7 +415,7 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 
 /** The total number of Y-axis labels on the line graph.
- @discussion Called only when autoScaleYAxis set to NO. Calculates the total height of the graph and evenly spaces the labels based on the graph height. Default value is 3.
+ @discussion Calculates the total height of the graph and evenly spaces the labels based on the graph height. Default value is 3.
  @param graph The graph object which is requesting the number of labels.
  @return The number of labels displayed on the Y-axis. */
 - (NSInteger)numberOfYAxisLabelsOnLineGraph:(BEMSimpleLineGraphView *)graph;

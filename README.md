@@ -2,7 +2,7 @@
 <p align = right><a target="_blank" href="https://twitter.com/intent/tweet?hashtags=iosdev&original_referer=https%3A%2F%2Fabout.twitter.com%2Fresources%2Fbuttons&text=BEMSimpleLineGraph,%20beautiful%20graphs%20for%20iOS!%20Open%20Source%20Library%20on%20GitHub&tw_p=tweetbutton&url=http%3A%2F%2Fgoo.gl%2FzgB6GL&via=Boris_Em"><img src="http://s30.postimg.org/j2q6ql27h/Tweet.png"></a>
 <a target="_blank" href="https://twitter.com/Boris_Em"> <img src="http://s29.postimg.org/avb82kvv7/Follow_Twitter.png"></a>
 </p>
-<p align="center"><img src="http://s29.postimg.org/57dn7ve3r/BEMSimple_Line_Graph_Main.png"/></p>	
+<p align="center"><img src="http://s27.postimg.org/txboc1peb/BEMSimple_Line_Graph_Main.png"/></p>	
 
 <p align="center">
 <b>BEMSimpleLineGraph</b> makes it easy to create and customize line graphs for iOS.
@@ -26,7 +26,7 @@ The full documentation of the project is available on its [wiki.](https://github
     * [License](#license)
     * [Support](#support)
     * [Sample App](#sample-app)
-* [**Setup**](#setup)
+* [**Getting Started**](#getting-started)
     * [Installation](#installation)
     * [Setup](#setup)
 * [**Documentation**](#documentation)
@@ -68,8 +68,9 @@ Join us on [Gitter](https://gitter.im/Boris-Em/BEMSimpleLineGraph) if you need a
 ### Sample App
 The iOS Sample App included with this project demonstrates how to correctly setup and use BEMSimpleLineGraph. You can refer to the sample app for an understanding of how to use and setup BEMSimpleLineGraph.
 
-## Setup
-*See the full article on the wiki [here](https://github.com/Boris-Em/BEMSimpleLineGraph/wiki/Getting-Started)*.
+
+## Getting Started
+<i>See the full article on the wiki [here.](https://github.com/Boris-Em/BEMSimpleLineGraph/wiki/Getting-Started)</i>
 
 **BEMSimpleLineGraph** can be added to any project (big or small) in a matter of minutes (maybe even seconds if you're super speedy). Cocoapods is fully supported, and so are all the latest technologies (eg. ARC, Storyboards, Interface Builder Attributes, Modules, and more).
 
@@ -82,7 +83,7 @@ The other way to install **BEMSimpleLineGraph**, is to drag and drop the *Classe
 ####Swift Projects
 To use **BEMSimpleLineGraph** in a Swift project add the following to your bridging header:
 
-    #import "BEMSimpleLineGraph.h"
+    #import "BEMSimpleLineGraphView.h”
 
 ### Setup
 Setting up **BEMSimpleLineGraph** in your project is simple. If you're familiar with UITableView, then **BEMSimpleLineGraph** should be a breeze. Follow the steps below to get everything up and running.
