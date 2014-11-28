@@ -279,7 +279,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             if ([self.delegate respondsToSelector:@selector(popUpSuffixForlineGraph:)])
                 self.popUpLabel.text = [NSString stringWithFormat:@"%@%@", [self longestString], [self.delegate popUpSuffixForlineGraph:self]];
             else self.popUpLabel.text = [self longestString];
-            NSLog(@"BON %@", self.popUpLabel.text);
             self.popUpLabel.textAlignment = 1;
             self.popUpLabel.numberOfLines = 1;
             self.popUpLabel.font = self.labelFont;
@@ -1066,7 +1065,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             }
         }
     }
-    NSLog(@"%@", longestString);
     return longestString;
 }
 
