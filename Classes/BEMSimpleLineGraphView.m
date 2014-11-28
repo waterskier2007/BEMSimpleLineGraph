@@ -50,8 +50,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     /// All of the Data Points
     NSMutableArray *dataPoints;
     
-
-    
     /// All of the X-Axis Labels
     NSMutableArray *xAxisLabels;
 }
@@ -86,14 +84,14 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 /// The X offset necessary to compensate the labels on the Y-Axis. Will take the value of the bigger label on the Y-Axis
 @property (nonatomic) CGFloat YAxisLabelXOffset;
 
+/// The biggest value out of all of the data points
+@property (nonatomic) CGFloat maxValue;
+
+/// The smallest value out of all of the data points
+@property (nonatomic) CGFloat minValue;
+
 /// Find which point is currently the closest to the vertical line
 - (BEMCircle *)closestDotFromtouchInputLine:(UIView *)touchInputLine;
-
-/// Determines the biggest Y-axis value from all the points
-- (CGFloat)maxValue;
-
-/// Determines the smallest Y-axis value from all the points
-- (CGFloat)minValue;
 
 @end
 
@@ -299,9 +297,13 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 #pragma mark - Drawing
 
 - (void)drawEntireGraph {
+    
     // The following method calls are in this specific order for a reason
-    // Changing the order of the method calls below can result in drawing glitches and even crashes
-
+    // Changing the order of the method calls below can result in drawing glitches and even crashes]
+    
+    self.maxValue = [self getMaximumValue];
+    self.minValue = [self getMinimumValue];
+    
     // Set the Y-Axis Offset if the Y-Axis is enabled. The offset is relative to the size of the longest label on the Y-Axis.
     if (self.enableYAxisLabel) {
         NSDictionary *attributes = @{NSFontAttributeName: self.labelFont};
@@ -372,40 +374,38 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             
             [yAxisValues addObject:[NSNumber numberWithFloat:positionOnYAxis]];
 
-            if (self.animationGraphEntranceTime != 0 || self.alwaysDisplayDots == YES) {
-                BEMCircle *circleDot = [[BEMCircle alloc] initWithFrame:CGRectMake(0, 0, self.sizePoint, self.sizePoint)];
-                circleDot.center = CGPointMake(positionOnXAxis, positionOnYAxis);
-                circleDot.tag = i+ DotFirstTag100;
-                circleDot.alpha = 0;
-                circleDot.absoluteValue = dotValue;
-                circleDot.Pointcolor = self.colorPoint;
-
-                [self addSubview:circleDot];
-                
-                if (self.alwaysDisplayPopUpLabels == YES) {
-                    if ([self.delegate respondsToSelector:@selector(lineGraph:alwaysDisplayPopUpAtIndex:)]) {
-                        if ([self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i] == YES) {
-                            [self displayPermanentLabelForPoint:circleDot];
-                        }
-                    } else [self displayPermanentLabelForPoint:circleDot];
-                }
-                
-                // Dot entrance animation
-                if (self.animationGraphEntranceTime == 0) {
+            BEMCircle *circleDot = [[BEMCircle alloc] initWithFrame:CGRectMake(0, 0, self.sizePoint, self.sizePoint)];
+            circleDot.center = CGPointMake(positionOnXAxis, positionOnYAxis);
+            circleDot.tag = i+ DotFirstTag100;
+            circleDot.alpha = 0;
+            circleDot.absoluteValue = dotValue;
+            circleDot.Pointcolor = self.colorPoint;
+            
+            [self addSubview:circleDot];
+            
+            if (self.alwaysDisplayPopUpLabels == YES) {
+                if ([self.delegate respondsToSelector:@selector(lineGraph:alwaysDisplayPopUpAtIndex:)]) {
+                    if ([self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i] == YES) {
+                        [self displayPermanentLabelForPoint:circleDot];
+                    }
+                } else [self displayPermanentLabelForPoint:circleDot];
+            }
+            
+            // Dot entrance animation
+            if (self.animationGraphEntranceTime == 0) {
+                if (self.alwaysDisplayDots == NO) {
+                    circleDot.alpha = 0;  // never reach here
+                } else circleDot.alpha = 0.7;
+            } else {
+                [UIView animateWithDuration:(float)self.animationGraphEntranceTime/numberOfPoints delay:(float)i*((float)self.animationGraphEntranceTime/numberOfPoints) options:UIViewAnimationOptionCurveLinear animations:^{
+                    circleDot.alpha = 0.7;
+                } completion:^(BOOL finished) {
                     if (self.alwaysDisplayDots == NO) {
-                        circleDot.alpha = 0;  // never reach here
-                    } else circleDot.alpha = 0.7;
-                } else {
-                    [UIView animateWithDuration:(float)self.animationGraphEntranceTime/numberOfPoints delay:(float)i*((float)self.animationGraphEntranceTime/numberOfPoints) options:UIViewAnimationOptionCurveLinear animations:^{
-                        circleDot.alpha = 0.7;
-                    } completion:^(BOOL finished) {
-                        if (self.alwaysDisplayDots == NO) {
-                            [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                                circleDot.alpha = 0;
-                            } completion:nil];
-                        }
-                    }];
-                }
+                        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                            circleDot.alpha = 0;
+                        } completion:nil];
+                    }
+                }];
             }
         }
     }
@@ -1068,7 +1068,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     return longestString;
 }
 
-- (CGFloat)maxValue {
+- (CGFloat)getMaximumValue {
     if ([self.delegate respondsToSelector:@selector(maxValueForLineGraph:)]) {
         return [self.delegate maxValueForLineGraph:self];
     } else {
@@ -1104,7 +1104,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     }
 }
 
-- (CGFloat)minValue {
+- (CGFloat)getMinimumValue {
     if ([self.delegate respondsToSelector:@selector(minValueForLineGraph:)]) {
         return [self.delegate minValueForLineGraph:self];
     } else {
@@ -1141,9 +1141,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 }
 
 - (CGFloat)yPositionForDotValue:(CGFloat)dotValue {
-    CGFloat maxValue = [self maxValue]; // Biggest Y-axis value from all the points.
-    CGFloat minValue = [self minValue]; // Smallest Y-axis value from all the points.
-    
     CGFloat positionOnYAxis; // The position on the Y-axis of the point currently being created.
     CGFloat padding = self.frame.size.height/2;
     if (padding > 90.0) {
@@ -1162,8 +1159,8 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
         }
     }
     
-    if (minValue == maxValue && self.autoScaleYAxis == YES) positionOnYAxis = self.frame.size.height/2;
-    else if (self.autoScaleYAxis == YES) positionOnYAxis = ((self.frame.size.height - padding/2) - ((dotValue - minValue) / ((maxValue - minValue) / (self.frame.size.height - padding)))) + self.XAxisLabelYOffset/2;
+    if (self.minValue == self.maxValue && self.autoScaleYAxis == YES) positionOnYAxis = self.frame.size.height/2;
+    else if (self.autoScaleYAxis == YES) positionOnYAxis = ((self.frame.size.height - padding/2) - ((dotValue - self.minValue) / ((self.maxValue - self.minValue) / (self.frame.size.height - padding)))) + self.XAxisLabelYOffset/2;
     else positionOnYAxis = ((self.frame.size.height) - dotValue);
     
     positionOnYAxis -= self.XAxisLabelYOffset;
