@@ -77,37 +77,37 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 /** Calculates the average (mean) of all points on the line graph.
  @return The average (mean) number of the points on the graph. Originally a float. */
-- (NSNumber *)calculatePointValueAverage;
+- (NSNumber *)calculatePointValueAverageForLineIndex:(NSInteger)lineIndex;
 
 
 /** Calculates the sum of all points on the line graph.
  @return The sum of the points on the graph. Originally a float. */
-- (NSNumber *)calculatePointValueSum;
+- (NSNumber *)calculatePointValueSumForLineIndex:(NSInteger)lineIndex;
 
 
 /** Calculates the median of all points on the line graph.
  @return The median number of the points on the graph. Originally a float. */
-- (NSNumber *)calculatePointValueMedian;
+- (NSNumber *)calculatePointValueMedianForLineIndex:(NSInteger)lineIndex;
 
 
 /** Calculates the mode of all points on the line graph.
  @return The mode number of the points on the graph. Originally a float. */
-- (NSNumber *)calculatePointValueMode;
+- (NSNumber *)calculatePointValueModeForLineIndex:(NSInteger)lineIndex;
 
 
 /** Calculates the standard deviation of all points on the line graph.
  @return The standard deviation of the points on the graph. Originally a float. */
-- (NSNumber *)calculateLineGraphStandardDeviation;
+- (NSNumber *)calculateLineGraphStandardDeviationForLineIndex:(NSInteger)lineIndex;
 
 
 /** Calculates the minimum value of all points on the line graph.
  @return The minimum number of the points on the graph. Originally a float. */
-- (NSNumber *)calculateMinimumPointValue;
+- (NSNumber *)calculateMinimumPointValueForLineIndex:(NSInteger)lineIndex;
 
 
 /** Calculates the maximum value of all points on the line graph.
  @return The maximum value of the points on the graph. Originally a float. */
-- (NSNumber *)calculateMaximumPointValue;
+- (NSNumber *)calculateMaximumPointValueForLineIndex:(NSInteger)lineIndex;
 
 
 /** All the displayed values of the X-Axis.
@@ -117,7 +117,7 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 /** All the data points on the graph.
  @return An array of NSNumbers, one for each data point. The array is sorted from the left side of the graph to the right side. */
-- (NSArray *)graphValuesForDataPoints;
+- (NSArray *)graphValuesForDataPointsOnLineIndex:(NSInteger)lineIndex;
 
 
 /** All the labels of the X-Axis.
@@ -228,7 +228,7 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 @property (nonatomic) IBInspectable CGFloat widthLine;
 
 /// Color of the reference lines of the graph. Default is same color as `colorLine`.
-@property (strong, nonatomic) UIColor *colorReferenceLines;
+@property (strong, nonatomic) IBInspectable UIColor *colorReferenceLines;
 
 
 /// The size of the circles that represent each point. Default is 10.0.
@@ -292,18 +292,23 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 //----- DATA POINTS -----//
 
+/** The number of lines shown on the graph.
+ @param graph The graph object requesting the total number of points.
+ @return The total number of lines in the graph. */
+- (NSInteger)numberOfLinesOnGraph:(BEMSimpleLineGraphView *)graph;;
+
 
 /** The number of points along the X-axis of the graph.
  @param graph The graph object requesting the total number of points.
  @return The total number of points in the line graph. */
-- (NSInteger)numberOfPointsInLineGraph:(BEMSimpleLineGraphView *)graph;
+- (NSInteger)numberOfPointsInLineGraph:(BEMSimpleLineGraphView *)graph onLine:(NSInteger)lineIndex;
 
 
 /** The vertical position for a point at the given index. It corresponds to the Y-axis value of the Graph.
  @param graph The graph object requesting the point value.
  @param index The index from left to right of a given point (X-axis). The first value for the index is 0.
  @return The Y-axis value at a given index. */
-- (CGFloat)lineGraph:(BEMSimpleLineGraphView *)graph valueForPointAtIndex:(NSInteger)index;
+- (CGFloat)lineGraph:(BEMSimpleLineGraphView *)graph valueForPointAtIndex:(NSInteger)index onLine:(NSInteger)lineIndex;
 
 
 @optional

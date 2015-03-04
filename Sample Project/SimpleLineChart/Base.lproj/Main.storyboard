@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="j8C-nX-jcI">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7519.1" systemVersion="14C109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="j8C-nX-jcI">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7513.1"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -28,7 +28,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" id="Vsd-lS-ATF" customClass="BEMSimpleLineGraphView">
+                            <view autoresizesSubviews="NO" contentMode="scaleToFill" id="Vsd-lS-ATF" customClass="BEMSimpleLineGraphView">
                                 <rect key="frame" x="0.0" y="65" width="320" height="288"/>
                                 <autoresizingMask key="autoresizingMask" heightSizable="YES" flexibleMaxY="YES"/>
                                 <userDefinedRuntimeAttributes>
@@ -36,19 +36,19 @@
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="enableYAxisLabel" value="YES"/>
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="enableBezierCurve" value="YES"/>
                                     <userDefinedRuntimeAttribute type="number" keyPath="alphaTop">
-                                        <real key="value" value="1"/>
+                                        <real key="value" value="0.20000000000000001"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="alphaBottom">
-                                        <real key="value" value="1"/>
+                                        <real key="value" value="0.75"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="colorTop">
-                                        <color key="value" red="0.1215686275" green="0.73333333329999995" blue="0.65098039220000004" alpha="1" colorSpace="calibratedRGB"/>
+                                        <color key="value" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="colorBottom">
                                         <color key="value" red="0.1215686275" green="0.73333333329999995" blue="0.65098039220000004" alpha="1" colorSpace="calibratedRGB"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="colorLine">
-                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="value" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="alphaLine">
                                         <real key="value" value="1"/>
@@ -67,6 +67,9 @@
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="sizePoint">
                                         <real key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="colorReferenceLines">
+                                        <color key="value" red="0.51270517676767668" green="0.51270517676767668" blue="0.51270517676767668" alpha="1" colorSpace="calibratedRGB"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
@@ -123,7 +126,7 @@
                                 <rect key="frame" x="0.0" y="472" width="320" height="2"/>
                             </progressView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Population Growth" id="jTt-cf-4Tw">
                         <barButtonItem key="leftBarButtonItem" title="Stat." id="pPS-9K-h6J">
@@ -163,7 +166,7 @@
                             <tableViewSection headerTitle="Calculations" id="MdR-06-NKc">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="5DF-sy-d39" detailTextLabel="ens-Af-1Mo" rowHeight="55" style="IBUITableViewCellStyleSubtitle" id="f8H-Kt-mH8">
-                                        <rect key="frame" x="0.0" y="119" width="320" height="55"/>
+                                        <rect key="frame" x="0.0" y="114" width="320" height="55"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="f8H-Kt-mH8" id="x6T-H4-aK8">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
@@ -187,7 +190,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="X8g-nP-PsS" detailTextLabel="Qpm-Rj-cZd" rowHeight="55" style="IBUITableViewCellStyleSubtitle" id="SAq-y3-hmB">
-                                        <rect key="frame" x="0.0" y="174" width="320" height="55"/>
+                                        <rect key="frame" x="0.0" y="169" width="320" height="55"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="SAq-y3-hmB" id="MF0-bB-1xR">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
@@ -211,7 +214,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="n1h-5Z-lWf" detailTextLabel="KNo-Tf-pd4" rowHeight="55" style="IBUITableViewCellStyleSubtitle" id="Q7H-fg-Jgi">
-                                        <rect key="frame" x="0.0" y="229" width="320" height="55"/>
+                                        <rect key="frame" x="0.0" y="224" width="320" height="55"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Q7H-fg-Jgi" id="Leg-Vq-s7s">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
@@ -235,7 +238,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="ybw-dm-usQ" detailTextLabel="Sr6-T5-3Vo" rowHeight="55" style="IBUITableViewCellStyleSubtitle" id="1e5-7c-IFf">
-                                        <rect key="frame" x="0.0" y="284" width="320" height="55"/>
+                                        <rect key="frame" x="0.0" y="279" width="320" height="55"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1e5-7c-IFf" id="Z85-5z-Tvr">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
@@ -259,7 +262,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="gmb-Ei-6v9" detailTextLabel="lal-a7-n4P" rowHeight="55" style="IBUITableViewCellStyleSubtitle" id="FcR-ra-Ivj">
-                                        <rect key="frame" x="0.0" y="339" width="320" height="55"/>
+                                        <rect key="frame" x="0.0" y="334" width="320" height="55"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="FcR-ra-Ivj" id="0Sk-EM-RAp">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
@@ -283,7 +286,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="8Fu-o3-LER" detailTextLabel="avN-WJ-oqe" rowHeight="55" style="IBUITableViewCellStyleSubtitle" id="MOl-kq-kol">
-                                        <rect key="frame" x="0.0" y="394" width="320" height="55"/>
+                                        <rect key="frame" x="0.0" y="389" width="320" height="55"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="MOl-kq-kol" id="K9m-Wv-yvr">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="54"/>
@@ -311,7 +314,7 @@
                             <tableViewSection headerTitle="Images" id="iL2-ha-ccx">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="8Hi-SW-jW3" rowHeight="85" style="IBUITableViewCellStyleDefault" id="x63-Yz-hGY">
-                                        <rect key="frame" x="0.0" y="497" width="320" height="85"/>
+                                        <rect key="frame" x="0.0" y="487" width="320" height="85"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="x63-Yz-hGY" id="YKR-Wf-o6L">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="84"/>

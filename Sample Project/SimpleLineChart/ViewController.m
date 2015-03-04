@@ -26,6 +26,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
     
     self.arrayOfValues = [[NSMutableArray alloc] init];
+    self.arrayOfValues2 = [[NSMutableArray alloc] init];
     self.arrayOfDates = [[NSMutableArray alloc] init];
     
     previousStepperValue = self.graphObjectIncrement.value;
@@ -33,6 +34,7 @@
     
     for (int i = 0; i < 9; i++) {
         [self.arrayOfValues addObject:@([self getRandomInteger])]; // Random values for the graph
+        [self.arrayOfValues2 addObject:@([self getRandomInteger])]; // Random values for the graph
         [self.arrayOfDates addObject:[NSString stringWithFormat:@"%@", @(2000 + i)]]; // Dates for the X-Axis of the graph
         
         totalNumber = totalNumber + [[self.arrayOfValues objectAtIndex:i] intValue]; // All of the values added together
@@ -67,7 +69,7 @@
     self.curveChoice.selectedSegmentIndex = self.myGraph.enableBezierCurve;
 
     // The labels to report the values of the graph when the user touches it
-    self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
+    self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSumForLineIndex:0] intValue]];
     self.labelDates.text = @"between 2000 and 2010";
 }
 
@@ -80,10 +82,13 @@
 
 - (IBAction)refresh:(id)sender {
     [self.arrayOfValues removeAllObjects];
+    [self.arrayOfValues2 removeAllObjects];
+    
     [self.arrayOfDates removeAllObjects];
     
     for (int i = 0; i < self.graphObjectIncrement.value; i++) {
         [self.arrayOfValues addObject:@([self getRandomInteger])]; // Random values for the graph
+        [self.arrayOfValues2 addObject:@([self getRandomInteger])]; // Random values for the graph
         [self.arrayOfDates addObject:[NSString stringWithFormat:@"%@", @(2000 + i)]]; // Dates for the X-Axis of the graph
         
         totalNumber = totalNumber + [(self.arrayOfValues)[i] intValue]; // All of the values added together
@@ -114,11 +119,13 @@
     if (self.graphObjectIncrement.value > previousStepperValue) {
         // Add line
         [self.arrayOfValues addObject:@([self getRandomInteger])];
+        [self.arrayOfValues2 addObject:@([self getRandomInteger])];
         [self.arrayOfDates addObject:[NSString stringWithFormat:@"%i", (int) [[self.arrayOfDates lastObject] integerValue] + 1]];
         [self.myGraph reloadGraph];
     } else if (self.graphObjectIncrement.value < previousStepperValue) {
         // Remove line
         [self.arrayOfValues removeObjectAtIndex:0];
+        [self.arrayOfValues2 removeObjectAtIndex:0];
         [self.arrayOfDates removeObjectAtIndex:0];
         [self.myGraph reloadGraph];
     }
@@ -135,24 +142,51 @@
     
     if ([segue.identifier isEqualToString:@"showStats"]) {
         StatsViewController *controller = segue.destinationViewController;
-        controller.standardDeviation = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculateLineGraphStandardDeviation] floatValue]];
-        controller.average = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculatePointValueAverage] floatValue]];
-        controller.median = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculatePointValueMedian] floatValue]];
-        controller.mode = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculatePointValueMode] floatValue]];
-        controller.minimum = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculateMinimumPointValue] floatValue]];
-        controller.maximum = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculateMaximumPointValue] floatValue]];
+        controller.standardDeviation = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculateLineGraphStandardDeviationForLineIndex:0] floatValue]];
+        controller.average = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculatePointValueAverageForLineIndex:0] floatValue]];
+        controller.median = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculatePointValueMedianForLineIndex:0] floatValue]];
+        controller.mode = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculatePointValueModeForLineIndex:0] floatValue]];
+        controller.minimum = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculateMinimumPointValueForLineIndex:0] floatValue]];
+        controller.maximum = [NSString stringWithFormat:@"%.2f", [[self.myGraph calculateMaximumPointValueForLineIndex:0] floatValue]];
         controller.snapshotImage = [self.myGraph graphSnapshotImage];
     }
 }
 
 #pragma mark - SimpleLineGraph Data Source
 
-- (NSInteger)numberOfPointsInLineGraph:(BEMSimpleLineGraphView *)graph {
-    return (int)[self.arrayOfValues count];
+-(NSInteger)numberOfLinesOnGraph:(BEMSimpleLineGraphView *)graph
+{
+    return 2;
 }
 
-- (CGFloat)lineGraph:(BEMSimpleLineGraphView *)graph valueForPointAtIndex:(NSInteger)index {
-    return [[self.arrayOfValues objectAtIndex:index] floatValue];
+- (NSInteger)numberOfPointsInLineGraph:(BEMSimpleLineGraphView *)graph onLine:(NSInteger)lineIndex
+{
+    switch (lineIndex) {
+        case 0:
+            return (int)[self.arrayOfValues count];
+            break;
+        case 1:
+            return (int)[self.arrayOfValues2 count];
+            break;
+        default:
+            return 0;
+            break;
+    }
+}
+
+- (CGFloat)lineGraph:(BEMSimpleLineGraphView *)graph valueForPointAtIndex:(NSInteger)index onLine:(NSInteger)lineIndex
+{
+    switch (lineIndex) {
+        case 0:
+            return [[self.arrayOfValues objectAtIndex:index] floatValue];
+            break;
+        case 1:
+            return [[self.arrayOfValues2 objectAtIndex:index] floatValue];
+            break;
+        default:
+            return 0.0f;
+            break;
+    }
 }
 
 #pragma mark - SimpleLineGraph Delegate
@@ -176,7 +210,7 @@
         self.labelValues.alpha = 0.0;
         self.labelDates.alpha = 0.0;
     } completion:^(BOOL finished) {
-        self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
+        self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSumForLineIndex:0] intValue]];
         self.labelDates.text = [NSString stringWithFormat:@"between %@ and %@", [self.arrayOfDates firstObject], [self.arrayOfDates lastObject]];
         
         [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
@@ -187,7 +221,7 @@
 }
 
 - (void)lineGraphDidFinishLoading:(BEMSimpleLineGraphView *)graph {
-    self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
+    self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSumForLineIndex:0] intValue]];
     self.labelDates.text = [NSString stringWithFormat:@"between %@ and %@", [self.arrayOfDates firstObject], [self.arrayOfDates lastObject]];
 }
 

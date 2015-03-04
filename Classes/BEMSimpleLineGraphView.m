@@ -31,6 +31,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     /// The number of Points in the Graph
     NSInteger numberOfPoints;
     
+    //the number of lines in the graph
+    NSInteger numberOfLines;
+    
     /// The closest point to the touch point
     BEMCircle *closestDot;
     CGFloat currentlyCloser;
@@ -166,7 +169,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     xAxisValues = [NSMutableArray array];
     xAxisLabelPoints = [NSMutableArray array];
     yAxisLabelPoints = [NSMutableArray array];
-    dataPoints = [NSMutableArray array];
+    dataPoints = [NSMutableArray arrayWithObject:[NSArray array]];
     xAxisLabels = [NSMutableArray array];
     yAxisValues = [NSMutableArray array];
 }
@@ -208,10 +211,25 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 }
 
 - (void)layoutNumberOfPoints {
+    
+    //get the total number of lines
+    if ([self.dataSource respondsToSelector:@selector(numberOfLinesOnGraph:)]) {
+        numberOfLines = [self.dataSource numberOfLinesOnGraph:self];
+    } else {
+        numberOfLines = 1;
+    }
+    
+    
     // Get the total number of data points from the delegate
-    if ([self.dataSource respondsToSelector:@selector(numberOfPointsInLineGraph:)]) {
-        numberOfPoints = [self.dataSource numberOfPointsInLineGraph:self];
-        
+    if ([self.dataSource respondsToSelector:@selector(numberOfPointsInLineGraph:onLine:)]) {
+        NSInteger maxNumberOfPoints = 0;
+        for (NSInteger i = 0; i < numberOfLines; i++) {
+            NSInteger num = [self.dataSource numberOfPointsInLineGraph:self onLine:i];
+            if (num > maxNumberOfPoints) {
+                maxNumberOfPoints = num;
+            }
+        }
+        numberOfPoints = maxNumberOfPoints;
     } else if ([self.delegate respondsToSelector:@selector(numberOfPointsInGraph)]) {
         [self printDeprecationWarningForOldMethod:@"numberOfPointsInGraph" andReplacementMethod:@"numberOfPointsInLineGraph:"];
         
@@ -300,9 +318,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
         if (self.enablePopUpReport == YES && self.alwaysDisplayPopUpLabels == NO) {
             NSDictionary *labelAttributes = @{NSFontAttributeName: self.labelFont};
             NSString *maxValueString = [NSString stringWithFormat:@"%li",
-                                        (long)[self calculateMaximumPointValue].integerValue];
+                                        (long)[self calculateMaximumPointValueForLineIndex:0].integerValue];
             NSString *minValueString = [NSString stringWithFormat:@"%li",
-                                        (long)[self calculateMinimumPointValue].integerValue];
+                                        (long)[self calculateMinimumPointValueForLineIndex:0].integerValue];
             NSString *longestString = nil;
             if ([minValueString sizeWithAttributes:labelAttributes].width >
                 [maxValueString sizeWithAttributes:labelAttributes].width)
@@ -384,71 +402,80 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     
     // Loop through each point and add it to the graph
     @autoreleasepool {
-        for (int i = 0; i < numberOfPoints; i++) {
-            CGFloat dotValue = 0;
-            
+        
+        
+        
+        for (int h = 0; h < numberOfLines; h++) {
+            NSMutableArray *tempData = [NSMutableArray array];
+            NSMutableArray *tempYAxis = [NSMutableArray array];
+            for (int i = 0; i < numberOfPoints; i++) {
+                CGFloat dotValue = 0;
+                
 #if !TARGET_INTERFACE_BUILDER
-            if ([self.dataSource respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
-                dotValue = [self.dataSource lineGraph:self valueForPointAtIndex:i];
-                
-            } else if ([self.delegate respondsToSelector:@selector(valueForIndex:)]) {
-                [self printDeprecationWarningForOldMethod:@"valueForIndex:" andReplacementMethod:@"lineGraph:valueForPointAtIndex:"];
-                
+                if ([self.dataSource respondsToSelector:@selector(lineGraph:valueForPointAtIndex:onLine:)]) {
+                    dotValue = [self.dataSource lineGraph:self valueForPointAtIndex:i onLine:h];
+                    
+                } else if ([self.delegate respondsToSelector:@selector(valueForIndex:)]) {
+                    [self printDeprecationWarningForOldMethod:@"valueForIndex:" andReplacementMethod:@"lineGraph:valueForPointAtIndex:"];
+                    
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                dotValue = [self.delegate valueForIndex:i];
+                    dotValue = [self.delegate valueForIndex:i];
 #pragma clang diagnostic pop
-                
-            } else if ([self.delegate respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
-                [self printDeprecationAndUnavailableWarningForOldMethod:@"lineGraph:valueForPointAtIndex:"];
-                NSException *exception = [NSException exceptionWithName:@"Implementing Unavailable Delegate Method" reason:@"lineGraph:valueForPointAtIndex: is no longer available on the delegate. It must be implemented on the data source." userInfo:nil];
-                [exception raise];
-                
-                
-            } else [NSException raise:@"lineGraph:valueForPointAtIndex: protocol method is not implemented in the data source. Throwing exception here before the system throws a CALayerInvalidGeometry Exception." format:@"Value for point %f at index %lu is invalid. CALayer position may contain NaN: [0 nan]", dotValue, (unsigned long)i];
+                    
+                } else if ([self.delegate respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
+                    [self printDeprecationAndUnavailableWarningForOldMethod:@"lineGraph:valueForPointAtIndex:"];
+                    NSException *exception = [NSException exceptionWithName:@"Implementing Unavailable Delegate Method" reason:@"lineGraph:valueForPointAtIndex: is no longer available on the delegate. It must be implemented on the data source." userInfo:nil];
+                    [exception raise];
+                    
+                    
+                } else [NSException raise:@"lineGraph:valueForPointAtIndex: protocol method is not implemented in the data source. Throwing exception here before the system throws a CALayerInvalidGeometry Exception." format:@"Value for point %f at index %lu is invalid. CALayer position may contain NaN: [0 nan]", dotValue, (unsigned long)i];
 #else
-            dotValue = (int)(arc4random() % 10000);
+                dotValue = (int)(arc4random() % 10000);
 #endif
-            [dataPoints addObject:[NSNumber numberWithFloat:dotValue]];
-            
-            positionOnXAxis = (((self.frame.size.width - self.YAxisLabelXOffset) / (numberOfPoints - 1)) * i) + self.YAxisLabelXOffset;
-            positionOnYAxis = [self yPositionForDotValue:dotValue];
-            
-            [yAxisValues addObject:[NSNumber numberWithFloat:positionOnYAxis]];
-
-            BEMCircle *circleDot = [[BEMCircle alloc] initWithFrame:CGRectMake(0, 0, self.sizePoint, self.sizePoint)];
-            circleDot.center = CGPointMake(positionOnXAxis, positionOnYAxis);
-            circleDot.tag = i+ DotFirstTag100;
-            circleDot.alpha = 0;
-            circleDot.absoluteValue = dotValue;
-            circleDot.Pointcolor = self.colorPoint;
-            
-            [self addSubview:circleDot];
-            
-            if (self.alwaysDisplayPopUpLabels == YES) {
-                if ([self.delegate respondsToSelector:@selector(lineGraph:alwaysDisplayPopUpAtIndex:)]) {
-                    if ([self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i] == YES) {
-                        [self displayPermanentLabelForPoint:circleDot];
-                    }
-                } else [self displayPermanentLabelForPoint:circleDot];
-            }
-            
-            // Dot entrance animation
-            if (self.animationGraphEntranceTime == 0) {
-                if (self.alwaysDisplayDots == NO) {
-                    circleDot.alpha = 0;  // never reach here
-                } else circleDot.alpha = 0.7;
-            } else {
-                [UIView animateWithDuration:(float)self.animationGraphEntranceTime/numberOfPoints delay:(float)i*((float)self.animationGraphEntranceTime/numberOfPoints) options:UIViewAnimationOptionCurveLinear animations:^{
-                    circleDot.alpha = 0.7;
-                } completion:^(BOOL finished) {
+                [tempData addObject:[NSNumber numberWithFloat:dotValue]];
+                
+                positionOnXAxis = (((self.frame.size.width - self.YAxisLabelXOffset) / (numberOfPoints - 1)) * i) + self.YAxisLabelXOffset;
+                positionOnYAxis = [self yPositionForDotValue:dotValue];
+                
+                [tempYAxis addObject:[NSNumber numberWithFloat:positionOnYAxis]];
+                
+                BEMCircle *circleDot = [[BEMCircle alloc] initWithFrame:CGRectMake(0, 0, self.sizePoint, self.sizePoint)];
+                circleDot.center = CGPointMake(positionOnXAxis, positionOnYAxis);
+                circleDot.tag = i+ DotFirstTag100;
+                circleDot.alpha = 0;
+                circleDot.absoluteValue = dotValue;
+                circleDot.Pointcolor = self.colorPoint;
+                
+                [self addSubview:circleDot];
+                
+                if (self.alwaysDisplayPopUpLabels == YES) {
+                    if ([self.delegate respondsToSelector:@selector(lineGraph:alwaysDisplayPopUpAtIndex:)]) {
+                        if ([self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i] == YES) {
+                            [self displayPermanentLabelForPoint:circleDot];
+                        }
+                    } else [self displayPermanentLabelForPoint:circleDot];
+                }
+                
+                // Dot entrance animation
+                if (self.animationGraphEntranceTime == 0) {
                     if (self.alwaysDisplayDots == NO) {
-                        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                            circleDot.alpha = 0;
-                        } completion:nil];
-                    }
-                }];
+                        circleDot.alpha = 0;  // never reach here
+                    } else circleDot.alpha = 0.7;
+                } else {
+                    [UIView animateWithDuration:(float)self.animationGraphEntranceTime/numberOfPoints delay:(float)i*((float)self.animationGraphEntranceTime/numberOfPoints) options:UIViewAnimationOptionCurveLinear animations:^{
+                        circleDot.alpha = 0.7;
+                    } completion:^(BOOL finished) {
+                        if (self.alwaysDisplayDots == NO) {
+                            [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                                circleDot.alpha = 0;
+                            } completion:nil];
+                        }
+                    }];
+                }
             }
+            [dataPoints addObject:tempData];
+            [yAxisValues addObject:tempYAxis];
         }
     }
     
@@ -462,46 +489,49 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             [subview removeFromSuperview];
     }
     
-    BEMLine *line = [[BEMLine alloc] initWithFrame:CGRectMake(self.YAxisLabelXOffset, 0, self.frame.size.width - self.YAxisLabelXOffset, self.frame.size.height)];
-    line.opaque = NO;
-    line.alpha = 1;
-    line.backgroundColor = [UIColor clearColor];
-    line.topColor = self.colorTop;
-    line.bottomColor = self.colorBottom;
-    line.topAlpha = self.alphaTop;
-    line.bottomAlpha = self.alphaBottom;
-    line.topGradient = self.gradientTop;
-    line.bottomGradient = self.gradientBottom;
-    line.lineWidth = self.widthLine;
-    line.lineAlpha = self.alphaLine;
-    line.bezierCurveIsEnabled = self.enableBezierCurve;
-    line.arrayOfPoints = yAxisValues;
-    line.xAxisBackgroundAlpha = self.alphaBackgroundXaxis;
-    line.arrayOfValues = self.graphValuesForDataPoints;
-    if (self.colorBackgroundXaxis == nil) {
-        line.xAxisBackgroundColor = self.colorBottom;
-    } else {
-        line.xAxisBackgroundColor = self.colorBackgroundXaxis;
-    }
-    if (self.enableReferenceXAxisLines || self.enableReferenceYAxisLines) {
-        line.enableRefrenceFrame = self.enableReferenceAxisFrame;
+    for (int i = 0; i < numberOfLines; i++) {
+        NSArray *values = yAxisValues[i];
+        BEMLine *line = [[BEMLine alloc] initWithFrame:CGRectMake(self.YAxisLabelXOffset, 0, self.frame.size.width - self.YAxisLabelXOffset, self.frame.size.height)];
+        line.opaque = NO;
+        line.alpha = 1;
+        line.backgroundColor = [UIColor clearColor];
+        line.topColor = self.colorTop;
+        line.bottomColor = self.colorBottom;
+        line.topAlpha = self.alphaTop;
+        line.bottomAlpha = self.alphaBottom;
+        line.topGradient = self.gradientTop;
+        line.bottomGradient = self.gradientBottom;
+        line.lineWidth = self.widthLine;
+        line.lineAlpha = self.alphaLine;
+        line.bezierCurveIsEnabled = self.enableBezierCurve;
+        line.arrayOfPoints = values;
+        line.xAxisBackgroundAlpha = self.alphaBackgroundXaxis;
+        line.arrayOfValues = [self graphValuesForDataPointsOnLineIndex:i];
+        if (self.colorBackgroundXaxis == nil) {
+            line.xAxisBackgroundColor = self.colorBottom;
+        } else {
+            line.xAxisBackgroundColor = self.colorBackgroundXaxis;
+        }
+        if (self.enableReferenceXAxisLines || self.enableReferenceYAxisLines) {
+            line.enableRefrenceFrame = self.enableReferenceAxisFrame;
+            
+            line.enableRefrenceLines = YES;
+            line.refrenceLineColor = self.colorReferenceLines;
+            line.arrayOfVerticalRefrenceLinePoints = self.enableReferenceXAxisLines ? xAxisLabelPoints : nil;
+            line.arrayOfHorizontalRefrenceLinePoints = self.enableReferenceYAxisLines ? yAxisLabelPoints : nil;
+        }
         
-        line.enableRefrenceLines = YES;
-        line.refrenceLineColor = self.colorReferenceLines;
-        line.arrayOfVerticalRefrenceLinePoints = self.enableReferenceXAxisLines ? xAxisLabelPoints : nil;
-        line.arrayOfHorizontalRefrenceLinePoints = self.enableReferenceYAxisLines ? yAxisLabelPoints : nil;
+        line.frameOffset = self.XAxisLabelYOffset;
+        
+        line.color = self.colorLine;
+        line.lineGradient = self.gradientLine;
+        line.lineGradientDirection = self.gradientLineDirection;
+        line.animationTime = self.animationGraphEntranceTime;
+        line.animationType = self.animationGraphStyle;
+        
+        [self addSubview:line];
+        [self sendSubviewToBack:line];
     }
-    
-    line.frameOffset = self.XAxisLabelYOffset;
-    
-    line.color = self.colorLine;
-    line.lineGradient = self.gradientLine;
-    line.lineGradientDirection = self.gradientLineDirection;
-    line.animationTime = self.animationGraphEntranceTime;
-    line.animationType = self.animationGraphStyle;
-    
-    [self addSubview:line];
-    [self sendSubviewToBack:line];
 }
 
 - (void)drawXAxis {
@@ -691,8 +721,8 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     
     if (self.autoScaleYAxis) {
         // Plot according to min-max range
-        NSNumber *minimumValue = [NSNumber numberWithInteger:[self calculateMinimumPointValue].integerValue];
-        NSNumber *maximumValue = [NSNumber numberWithInteger:[self calculateMaximumPointValue].integerValue];
+        NSNumber *minimumValue = [NSNumber numberWithInteger:[self calculateMinimumPointValueForLineIndex:0].integerValue];
+        NSNumber *maximumValue = [NSNumber numberWithInteger:[self calculateMaximumPointValueForLineIndex:0].integerValue];
         
         CGFloat numberOfLabels;
         if ([self.delegate respondsToSelector:@selector(numberOfYAxisLabelsOnLineGraph:)]) numberOfLabels = [self.delegate numberOfYAxisLabelsOnLineGraph:self];
@@ -884,51 +914,51 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 
 #pragma mark - Calculations
 
-- (NSNumber *)calculatePointValueAverage {
-    NSExpression *expression = [NSExpression expressionForFunction:@"average:" arguments:@[[NSExpression expressionForConstantValue:dataPoints]]];
+- (NSNumber *)calculatePointValueAverageForLineIndex:(NSInteger)lineIndex {
+    NSExpression *expression = [NSExpression expressionForFunction:@"average:" arguments:@[[NSExpression expressionForConstantValue:dataPoints[lineIndex]]]];
     NSNumber *value = [expression expressionValueWithObject:nil context:nil];
     
     return value;
 }
 
-- (NSNumber *)calculatePointValueSum {
-    NSExpression *expression = [NSExpression expressionForFunction:@"sum:" arguments:@[[NSExpression expressionForConstantValue:dataPoints]]];
+- (NSNumber *)calculatePointValueSumForLineIndex:(NSInteger)lineIndex {
+    NSExpression *expression = [NSExpression expressionForFunction:@"sum:" arguments:@[[NSExpression expressionForConstantValue:dataPoints[lineIndex]]]];
     NSNumber *value = [expression expressionValueWithObject:nil context:nil];
     
     return value;
 }
 
-- (NSNumber *)calculatePointValueMedian {
-    NSExpression *expression = [NSExpression expressionForFunction:@"median:" arguments:@[[NSExpression expressionForConstantValue:dataPoints]]];
+- (NSNumber *)calculatePointValueMedianForLineIndex:(NSInteger)lineIndex {
+    NSExpression *expression = [NSExpression expressionForFunction:@"median:" arguments:@[[NSExpression expressionForConstantValue:dataPoints[lineIndex]]]];
     NSNumber *value = [expression expressionValueWithObject:nil context:nil];
     
     return value;
 }
 
-- (NSNumber *)calculatePointValueMode {
-    NSExpression *expression = [NSExpression expressionForFunction:@"mode:" arguments:@[[NSExpression expressionForConstantValue:dataPoints]]];
+- (NSNumber *)calculatePointValueModeForLineIndex:(NSInteger)lineIndex {
+    NSExpression *expression = [NSExpression expressionForFunction:@"mode:" arguments:@[[NSExpression expressionForConstantValue:dataPoints[lineIndex]]]];
     NSMutableArray *value = [expression expressionValueWithObject:nil context:nil];
     
     return [value firstObject];
 }
 
-- (NSNumber *)calculateLineGraphStandardDeviation {
-    NSExpression *expression = [NSExpression expressionForFunction:@"stddev:" arguments:@[[NSExpression expressionForConstantValue:dataPoints]]];
+- (NSNumber *)calculateLineGraphStandardDeviationForLineIndex:(NSInteger)lineIndex {
+    NSExpression *expression = [NSExpression expressionForFunction:@"stddev:" arguments:@[[NSExpression expressionForConstantValue:dataPoints[lineIndex]]]];
     NSNumber *value = [expression expressionValueWithObject:nil context:nil];
     
     return value;
 }
 
-- (NSNumber *)calculateMinimumPointValue {
+- (NSNumber *)calculateMinimumPointValueForLineIndex:(NSInteger)lineIndex {
     if (dataPoints.count > 0) {
-        NSExpression *expression = [NSExpression expressionForFunction:@"min:" arguments:@[[NSExpression expressionForConstantValue:dataPoints]]];
+        NSExpression *expression = [NSExpression expressionForFunction:@"min:" arguments:@[[NSExpression expressionForConstantValue:dataPoints[lineIndex]]]];
         NSNumber *value = [expression expressionValueWithObject:nil context:nil];
         return value;
     } else return @0;
 }
 
-- (NSNumber *)calculateMaximumPointValue {
-    NSExpression *expression = [NSExpression expressionForFunction:@"max:" arguments:@[[NSExpression expressionForConstantValue:dataPoints]]];
+- (NSNumber *)calculateMaximumPointValueForLineIndex:(NSInteger)lineIndex {
+    NSExpression *expression = [NSExpression expressionForFunction:@"max:" arguments:@[[NSExpression expressionForConstantValue:dataPoints[lineIndex]]]];
     NSNumber *value = [expression expressionValueWithObject:nil context:nil];
     
     return value;
@@ -941,8 +971,8 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     return xAxisValues;
 }
 
-- (NSArray *)graphValuesForDataPoints {
-    return dataPoints;
+- (NSArray *)graphValuesForDataPointsOnLineIndex:(NSInteger)lineIndex {
+    return dataPoints[lineIndex];
 }
 
 - (NSArray *)graphLabelsForXAxis {
@@ -1043,9 +1073,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     self.popUpLabel.center = self.popUpView.center;
     
     if ([self.delegate respondsToSelector:@selector(popUpSuffixForlineGraph:)])
-        self.popUpLabel.text = [NSString stringWithFormat:@"%li%@", (long)[dataPoints[(NSInteger) closestDot.tag - DotFirstTag100] integerValue], [self.delegate popUpSuffixForlineGraph:self]];
+        self.popUpLabel.text = [NSString stringWithFormat:@"%li%@", (long)[dataPoints[0][(NSInteger) closestDot.tag - DotFirstTag100] integerValue], [self.delegate popUpSuffixForlineGraph:self]];
     else
-        self.popUpLabel.text = [NSString stringWithFormat:@"%li", (long)[dataPoints[(NSInteger) closestDot.tag - DotFirstTag100] integerValue]];
+        self.popUpLabel.text = [NSString stringWithFormat:@"%li", (long)[dataPoints[0][(NSInteger) closestDot.tag - DotFirstTag100] integerValue]];
     if (self.enableYAxisLabel == YES && self.popUpView.frame.origin.x <= self.YAxisLabelXOffset) {
         self.xCenterLabel = self.popUpView.frame.size.width/2;
         self.popUpView.center = CGPointMake(self.xCenterLabel + self.YAxisLabelXOffset + 1, self.yCenterLabel);
@@ -1090,27 +1120,29 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
         CGFloat maxValue = -FLT_MAX;
         
         @autoreleasepool {
-            for (int i = 0; i < numberOfPoints; i++) {
-                if ([self.dataSource respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
-                    dotValue = [self.dataSource lineGraph:self valueForPointAtIndex:i];
-                    
-                } else if ([self.delegate respondsToSelector:@selector(valueForIndex:)]) {
-                    [self printDeprecationWarningForOldMethod:@"valueForIndex:" andReplacementMethod:@"lineGraph:valueForPointAtIndex:"];
-                    
+            for (int h = 0; h < numberOfLines; h++) {
+                for (int i = 0; i < numberOfPoints; i++) {
+                    if ([self.dataSource respondsToSelector:@selector(lineGraph:valueForPointAtIndex:onLine:)]) {
+                        dotValue = [self.dataSource lineGraph:self valueForPointAtIndex:i onLine:h];
+                        
+                    } else if ([self.delegate respondsToSelector:@selector(valueForIndex:)]) {
+                        [self printDeprecationWarningForOldMethod:@"valueForIndex:" andReplacementMethod:@"lineGraph:valueForPointAtIndex:"];
+                        
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                    dotValue = [self.delegate valueForIndex:i];
+                        dotValue = [self.delegate valueForIndex:i];
 #pragma clang diagnostic pop
+                        
+                    } else if ([self.delegate respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
+                        [self printDeprecationAndUnavailableWarningForOldMethod:@"lineGraph:valueForPointAtIndex:"];
+                        NSException *exception = [NSException exceptionWithName:@"Implementing Unavailable Delegate Method" reason:@"lineGraph:valueForPointAtIndex: is no longer available on the delegate. It must be implemented on the data source." userInfo:nil];
+                        [exception raise];
+                        
+                    } else dotValue = 0;
                     
-                } else if ([self.delegate respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
-                    [self printDeprecationAndUnavailableWarningForOldMethod:@"lineGraph:valueForPointAtIndex:"];
-                    NSException *exception = [NSException exceptionWithName:@"Implementing Unavailable Delegate Method" reason:@"lineGraph:valueForPointAtIndex: is no longer available on the delegate. It must be implemented on the data source." userInfo:nil];
-                    [exception raise];
-                    
-                } else dotValue = 0;
-                
-                if (dotValue > maxValue) {
-                    maxValue = dotValue;
+                    if (dotValue > maxValue) {
+                        maxValue = dotValue;
+                    }
                 }
             }
         }
@@ -1126,27 +1158,29 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
         CGFloat minValue = INFINITY;
         
         @autoreleasepool {
-            for (int i = 0; i < numberOfPoints; i++) {
-                if ([self.dataSource respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
-                    dotValue = [self.dataSource lineGraph:self valueForPointAtIndex:i];
-                    
-                } else if ([self.delegate respondsToSelector:@selector(valueForIndex:)]) {
-                    [self printDeprecationWarningForOldMethod:@"valueForIndex:" andReplacementMethod:@"lineGraph:valueForPointAtIndex:"];
-                    
+            for (int h = 0; h < numberOfLines; h++) {
+                for (int i = 0; i < numberOfPoints; i++) {
+                    if ([self.dataSource respondsToSelector:@selector(lineGraph:valueForPointAtIndex:onLine:)]) {
+                        dotValue = [self.dataSource lineGraph:self valueForPointAtIndex:i onLine:h];
+                        
+                    } else if ([self.delegate respondsToSelector:@selector(valueForIndex:)]) {
+                        [self printDeprecationWarningForOldMethod:@"valueForIndex:" andReplacementMethod:@"lineGraph:valueForPointAtIndex:"];
+                        
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                    dotValue = [self.delegate valueForIndex:i];
+                        dotValue = [self.delegate valueForIndex:i];
 #pragma clang diagnostic pop
+                        
+                    } else if ([self.delegate respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
+                        [self printDeprecationAndUnavailableWarningForOldMethod:@"lineGraph:valueForPointAtIndex:"];
+                        NSException *exception = [NSException exceptionWithName:@"Implementing Unavailable Delegate Method" reason:@"lineGraph:valueForPointAtIndex: is no longer available on the delegate. It must be implemented on the data source." userInfo:nil];
+                        [exception raise];
+                        
+                    } else dotValue = 0;
                     
-                } else if ([self.delegate respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
-                    [self printDeprecationAndUnavailableWarningForOldMethod:@"lineGraph:valueForPointAtIndex:"];
-                    NSException *exception = [NSException exceptionWithName:@"Implementing Unavailable Delegate Method" reason:@"lineGraph:valueForPointAtIndex: is no longer available on the delegate. It must be implemented on the data source." userInfo:nil];
-                    [exception raise];
-                    
-                } else dotValue = 0;
-                
-                if (dotValue < minValue) {
-                    minValue = dotValue;
+                    if (dotValue < minValue) {
+                        minValue = dotValue;
+                    }
                 }
             }
         }
